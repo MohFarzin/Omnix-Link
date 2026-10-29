@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy · Omnix Link{% endblock %}
+{% block body %}
+<section class="page narrow legal">
+  <h1>Privacy Policy</h1>
+  <p class="muted">Last updated: 29 October 2026 · <a href="https://relaylink.omnixstudio.xyz">https://relaylink.omnixstudio.xyz</a></p>
+
+  <h2>1. Overview</h2>
+  <p>Omnix Link (Relay Link) helps you authorize YouTube, Twitch, and Kick and hand tokens to your self-hosted Omnix StreamRelay. This policy explains what we collect on the Link website.</p>
+
+  <h2>2. Data we collect</h2>
+  <ul>
+    <li><strong>Account:</strong> email, password hash (if you register with email), display name, and optional Google / Discord identifiers from login.</li>
+    <li><strong>Relay link:</strong> tunnel token metadata, link status, last-seen time, and the IP address shown when your egg dials in for confirmation.</li>
+    <li><strong>Platform Connect:</strong> short-lived OAuth tokens while they are queued for encrypted handoff to your StreamRelay. We do not keep them as a permanent vault after delivery.</li>
+    <li><strong>Technical logs:</strong> basic request logs (time, path, status) for security and reliability.</li>
+  </ul>
+
+  <h2>3. How we use data</h2>
+  <ul>
+    <li>Sign you in and protect your account</li>
+    <li>Confirm and maintain your one StreamRelay connection</li>
+    <li>Complete Connect flows and deliver tokens to your egg</li>
+    <li>Prevent abuse and debug outages</li>
+  </ul>
+
+  <h2>4. What we do not do</h2>
+  <ul>
+    <li>We do not sell your personal data</li>
+    <li>We do not need your StreamRelay to expose a public IP or open inbound ports</li>
+    <li>Video content itself is processed on your StreamRelay, not stored by Omnix Link</li>
+  </ul>
+
+  <h2>5. Sharing</h2>
+  <p>We share data with OAuth providers (Google, Twitch, Kick, Discord) only as needed to complete Connect / login you start. Hosting and CDN providers that run this site may process traffic metadata. We do not share account data with advertisers.</p>
+
+  <h2>6. Retention</h2>
+  <p>Account and relay records stay while your account exists. Queued platform tokens are removed after handoff or shortly after. You can Remove access for a platform on the Link site. Contact us to request account deletion.</p>
+
+  <h2>7. Security</h2>
+  <p>Traffic uses HTTPS. Token handoffs to your egg use an additional AES-256-GCM layer keyed by your connect token. No method is perfect; protect your Link password and connect token.</p>
+
+  <h2>8. Children</h2>
+  <p>Omnix Link is not directed at children under 13 (or the minimum age in your country). Do not use the service if you are under that age.</p>
+
+  <h2>9. Contact</h2>
+  <p>Privacy questions: <a href="mailto:admin@omnixstudio.xyz">admin@omnixstudio.xyz</a></p>
+  <p>Also see our <a href="/terms">Terms of Service</a>.</p>
+</section>
+{% endblock %}

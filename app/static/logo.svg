@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Vibrant Electric Cyber Gradient with userSpaceOnUse for seamless flow -->
+    <linearGradient id="cyberFlow" x1="112" y1="256" x2="455" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+
+    <!-- Intense Professional Glow Filter -->
+    <filter id="proGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur1" />
+      <feGaussianBlur stdDeviation="2" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur1" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Authentic YouTube Node Template -->
+    <g id="node-youtube">
+      <rect x="-18" y="-14" width="36" height="28" rx="8" fill="#ff0000" stroke="#ff8080" stroke-width="2.5" filter="url(#proGlow)" />
+      <path d="M-5 -5.5 L7 0 L-5 5.5 Z" fill="#ffffff" filter="url(#proGlow)" />
+    </g>
+
+    <!-- Twitch Node Template -->
+    <g id="node-twitch">
+      <rect x="-16" y="-14" width="32" height="28" rx="8" fill="#050814" stroke="#a855f7" stroke-width="3.5" filter="url(#proGlow)" />
+      <path d="M-6 -5 L-6 3 L-2 3 L0 5 L0 3 L5 3 L5 -5 Z" fill="none" stroke="#c084fc" stroke-width="2" stroke-linejoin="round" filter="url(#proGlow)" />
+      <line x1="-2" y1="-2" x2="-2" y2="1" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" />
+      <line x1="2" y1="-2" x2="2" y2="1" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" />
+    </g>
+
+    <!-- Kick Node — black plate + lime Kick "K" (#53FC18) -->
+    <g id="node-kick">
+      <rect x="-17" y="-14" width="34" height="28" rx="7" fill="#030c06" stroke="#53FC18" stroke-width="3" filter="url(#proGlow)" />
+      <path
+        fill="#53FC18"
+        d="M-7 -8.5h4.2v6.35L2.6 -8.5H8.4L1.55 0 8.4 8.5H2.6L-2.8 2.15V8.5H-7z"
+      />
+    </g>
+  </defs>
+
+  <!-- Outer Rounded Square App Badge Frame (Fully Contained) -->
+  <rect x="32" y="32" width="448" height="448" rx="100" fill="#03050a" stroke="#1e293b" stroke-width="4" />
+
+  <!-- ================= UNIFORM EQUAL-DISTANCE CONNECTED PATHWAYS ================= -->
+  <!-- Outer Neon Glow Pass -->
+  <g fill="none" stroke="url(#cyberFlow)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#proGlow)">
+    <path d="M 112 256 L 214 256" />
+    <path d="M 288 224 L 400 142" />
+    <path d="M 298 256 L 439 256" />
+    <path d="M 288 288 L 400 370" />
+  </g>
+
+  <!-- Inner Pure White Laser Core Pass -->
+  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#proGlow)">
+    <path d="M 112 256 L 214 256" />
+    <path d="M 288 224 L 400 142" />
+    <path d="M 298 256 L 439 256" />
+    <path d="M 288 288 L 400 370" />
+  </g>
+
+
+  <!-- ================= LEFT SOURCE NODE (Streaming PC Rig) ================= -->
+  <g transform="translate(98, 256)" filter="url(#proGlow)">
+    <rect x="-14" y="-14" width="28" height="28" rx="8" fill="#050814" stroke="#00f2fe" stroke-width="3.5" />
+    <rect x="-6" y="-10" width="12" height="20" rx="2" fill="#03060c" stroke="#38bdf8" stroke-width="1.5" />
+    <circle cx="-3" cy="-6" r="1" fill="#22c55e" />
+    <circle cx="3" cy="-6" r="1" fill="#00f2fe" />
+    <line x1="-4" y1="-2" x2="4" y2="-2" stroke="#00f2fe" stroke-width="1" opacity="0.8" />
+    <line x1="-4" y1="2" x2="4" y2="2" stroke="#00f2fe" stroke-width="1" opacity="0.8" />
+    <line x1="-4" y1="6" x2="4" y2="6" stroke="#00f2fe" stroke-width="1" opacity="0.8" />
+  </g>
+
+
+  <!-- ================= CENTRAL OCTAGON SERVER HUB ================= -->
+  <g transform="translate(256, 256)">
+    <polygon points="0,-42 30,-30 42,0 30,30 0,42 -30,30 -42,0 -30,-30" fill="#070d18" stroke="#00f2fe" stroke-width="4" filter="url(#proGlow)" />
+    <polygon points="0,-33 24,-24 33,0 24,24 0,33 -24,24 -33,0 -24,-24" fill="#03060c" stroke="#1d4ed8" stroke-width="1.8" />
+
+    <circle cx="-10" cy="-9" r="1.5" fill="#22c55e" filter="url(#proGlow)" />
+    <circle cx="-4" cy="-9" r="1.5" fill="#38bdf8" filter="url(#proGlow)" />
+    <circle cx="2" cy="-9" r="1.5" fill="#00f2fe" filter="url(#proGlow)" />
+
+    <line x1="-14" y1="-2" x2="14" y2="-2" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="-14" y1="2" x2="14" y2="2" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="-14" y1="6" x2="14" y2="6" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round" />
+
+    <circle cx="0" cy="14" r="6" fill="#0284c7" filter="url(#proGlow)" />
+    <circle cx="0" cy="14" r="2.5" fill="#00f2fe" filter="url(#proGlow)" />
+    <circle cx="0" cy="14" r="1" fill="#ffffff" />
+
+    <rect x="-52" y="47" width="104" height="22" rx="5" fill="#050810" stroke="#00f2fe" stroke-width="1.8" filter="url(#proGlow)" />
+    <text x="0" y="61.5" font-family="sans-serif" font-weight="900" font-size="9.5" fill="#ffffff" text-anchor="middle" letter-spacing="1.2">STREAM RELAY</text>
+  </g>
+
+
+  <!-- ================= RIGHT DESTINATION NODES ================= -->
+  <g transform="translate(416, 142)">
+    <use href="#node-youtube" />
+  </g>
+
+  <g transform="translate(455, 256)">
+    <use href="#node-twitch" />
+  </g>
+
+  <g transform="translate(416, 370)">
+    <use href="#node-kick" />
+  </g>
+
+</svg>

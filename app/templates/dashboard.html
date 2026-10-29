@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Connect Relay · Omnix Link{% endblock %}
+{% block body %}
+<section class="page">
+  <h1>Connect Relay</h1>
+  <p class="muted">One StreamRelay per Omnix Link account. Paste the token into your egg, then confirm here.</p>
+
+  {% if can_connect %}
+  <form method="post" action="/app/relays" class="stack" style="max-width:20rem;margin:1.25rem 0;">
+    <button type="submit" class="btn wide">Connect Relay</button>
+  </form>
+  {% else %}
+  <p class="banner bad">This account already has a relay. You cannot connect another.</p>
+  {% if relays %}
+  <p><a class="btn" href="/app/relays/{{ relays[0].id }}">Open your relay</a></p>
+  {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

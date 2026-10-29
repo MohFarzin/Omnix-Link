@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Sign up · Omnix Link{% endblock %}
+{% block body %}
+<section class="auth-card">
+  <h1>Create account</h1>
+  {% if error %}<p class="banner bad">{{ error }}</p>{% endif %}
+  <div class="stack social">
+    <a class="btn wide google" href="/auth/google/start">Continue with Google</a>
+  </div>
+  <div class="or">or email</div>
+  <form method="post" action="/register" class="stack">
+    <label>Display name <input type="text" name="name" autocomplete="nickname" /></label>
+    <label>Email <input type="email" name="email" required autocomplete="username" /></label>
+    <label>Password <input type="password" name="password" required minlength="8" autocomplete="new-password" /></label>
+    <button type="submit">Sign up with email</button>
+  </form>
+  <p class="muted">Already have an account? <a href="/login">Log in</a></p>
+</section>
+{% endblock %}

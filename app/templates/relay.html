@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Your StreamRelay · Omnix Link{% endblock %}
+{% block body %}
+<section class="page">
+  <h1>{{ relay.name }}</h1>
+  <p class="muted">
+    {% if relay.link_status == 'linked' %}
+      <span class="pill ok">connected</span>
+      {% if relay.linked_ip %}<span class="mono"> · {{ relay.linked_ip }}</span>{% endif %}
+    {% elif relay.link_status == 'pending_confirm' %}
+      <span class="pill warn">confirm needed</span>
+    {% elif relay.link_status == 'waiting' %}
+      <span class="pill">waiting for egg</span>
+    {% else %}
+      <span class="pill">{{ relay.link_status }}</span>
+    {% endif %}
+  </p>
+
+  {% if relay.link_status != 'linked' %}
+  <div class="panel stack">
+    <h2>Connect token</h2>
+    <p class="muted small">In StreamRelay → <strong>Omnix Link</strong> → paste → <strong>Save &amp; connect</strong>.</p>
+    <code class="mono token" id="connectToken">{{ relay.tunnel_token }}</code>
+    <div class="row-actions">
+      <button type="button" class="ghost" id="copyTokenBtn">Copy token</button>
+    </div>
+    <form method="post" action="/app/relays/{{ relay.id }}/rotate-token" onsubmit="return confirm('New token disconnects the old one. Continue?');">
+      <button type="submit" class="ghost">New token</button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if relay.link_status == 'waiting' %}
+  <div class="panel stack warn-box">
+    <h2>Waiting for your StreamRelay…</h2>
+    <p class="muted">This page refreshes automatically. Confirm when your egg dials in.</p>
+  </div>
+  {% endif %}
+
+  {% if relay.link_status == 'pending_confirm' %}
+  <div class="panel stack warn-box" role="dialog" aria-modal="true">
+    <h2>Is this your StreamRelay?</h2>
+    <ul class="detail-list">
+      <li><strong>IP:</strong> {{ relay.pending_ip or '—' }}</li>
+      <li><strong>Node:</strong> {{ relay.pending_node_name or '—' }}</li>
+      <li><strong>Version:</strong> {{ relay.pending_version or '—' }}</li>
+      <li><strong>Discord on Link:</strong> {% if discord_linked %}yes{% else %}no{% endif %}</li>
+      <li><strong>Google on Link:</strong> {% if google_linked %}yes{% else %}no{% endif %}</li>
+    </ul>
+    <div class="row-actions">
+      <form method="post" action="/app/relays/{{ relay.id }}/confirm"><button type="submit">Yes — connect</button></form>
+      <form method="post" action="/app/relays/{{ relay.id }}/reject"><button type="submit" class="ghost danger">No — reject</button></form>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if relay.link_status == 'linked' %}
+  <div class="panel stack">
+    <h2>Connect platforms</h2>
+    <p class="muted small">Only here — not on the StreamRelay panel. Tokens go encrypted to your egg.</p>
+    <div class="connect-row">
+      <div class="connect-card">
+        <strong>YouTube</strong>
+        <span class="muted">{% if relay.platforms.get('youtube', {}).get('connected') %}Connected{% else %}Not connected{% endif %}</span>
+        {% if yt_ready %}
+          {% if relay.platforms.get('youtube', {}).get('connected') %}
+            <form method="post" action="/app/relays/{{ relay.id }}/disconnect/youtube">
+              <button type="submit" class="ghost danger">Remove access</button>
+            </form>
+          {% else %}
+            <a class="btn" href="/app/relays/{{ relay.id }}/connect/youtube">Connect YouTube</a>
+          {% endif %}
+        {% else %}
+          <span class="muted">YouTube app not configured on Link</span>
+        {% endif %}
+      </div>
+      <div class="connect-card">
+        <strong>Twitch</strong>
+        <span class="muted">{% if relay.platforms.get('twitch', {}).get('connected') %}Connected{% else %}Not connected{% endif %}</span>
+        {% if twitch_ready %}
+          {% if relay.platforms.get('twitch', {}).get('connected') %}
+            <form method="post" action="/app/relays/{{ relay.id }}/disconnect/twitch">
+              <button type="submit" class="ghost danger">Remove access</button>
+            </form>
+          {% else %}
+            <a class="btn" href="/app/relays/{{ relay.id }}/connect/twitch">Connect Twitch</a>
+          {% endif %}
+        {% else %}
+          <span class="muted">Twitch app not configured on Link</span>
+        {% endif %}
+      </div>
+      <div class="connect-card">
+        <strong>Kick</strong>
+        <span class="muted">{% if relay.platforms.get('kick', {}).get('connected') %}Connected{% else %}Not connected{% endif %}</span>
+        {% if kick_ready %}
+          {% if relay.platforms.get('kick', {}).get('connected') %}
+            <form method="post" action="/app/relays/{{ relay.id }}/disconnect/kick">
+              <button type="submit" class="ghost danger">Remove access</button>
+            </form>
+          {% else %}
+            <a class="btn" href="/app/relays/{{ relay.id }}/connect/kick">Connect Kick</a>
+          {% endif %}
+        {% else %}
+          <span class="muted">Kick — configure later</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <details class="token-details">
+    <summary>Show connect token</summary>
+    <code class="mono token" id="connectToken">{{ relay.tunnel_token }}</code>
+    <button type="button" class="ghost" id="copyTokenBtn">Copy</button>
+  </details>
+  {% endif %}
+</section>
+{% if relay.link_status in ['waiting', 'pending_confirm'] %}
+<script>
+  setTimeout(function () { location.reload(); }, 4000);
+</script>
+{% endif %}
+<script>
+  document.getElementById("copyTokenBtn")?.addEventListener("click", function () {
+    const t = document.getElementById("connectToken")?.textContent || "";
+    navigator.clipboard.writeText(t).then(function () {
+      document.getElementById("copyTokenBtn").textContent = "Copied";
+    });
+  });
+</script>
+{% endblock %}

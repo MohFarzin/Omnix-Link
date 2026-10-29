@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}{{ settings.app_name }}{% endblock %}</title>
+  <meta name="description" content="Omnix Link (Relay Link) — connect your self-hosted Omnix StreamRelay and authorize YouTube, Twitch, and Kick." />
+  <meta property="og:title" content="Omnix Link — Relay Link" />
+  <meta property="og:description" content="Connect your StreamRelay, then Connect YouTube / Twitch / Kick. Tokens hand off encrypted to your machine." />
+  <meta property="og:image" content="https://relaylink.omnixstudio.xyz/static/omnix-link-logo.png" />
+  <meta property="og:url" content="https://relaylink.omnixstudio.xyz/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:image" content="https://relaylink.omnixstudio.xyz/static/omnix-link-logo.png" />
+  <link rel="icon" href="/static/logo.svg?v=relay1" type="image/svg+xml" />
+  <link rel="icon" href="/static/favicon.png?v=relay1" type="image/png" sizes="64x64" />
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png?v=relay1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=relay1" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="{% if user %}/app{% else %}/{% endif %}">
+      <img class="brand-mark" src="/static/logo.svg?v=relay1" width="32" height="32" alt="Omnix Link" />
+      Omnix <span>Link</span>
+    </a>
+    <nav>
+      {% if user %}
+        <span class="who">{{ user.display_name or user.email }}</span>
+        <form method="post" action="/logout" class="inline"><button type="submit" class="ghost">Log out</button></form>
+      {% else %}
+        <a href="/login">Log in</a>
+        <a class="btn" href="/register">Sign up</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% if flash %}<p class="banner ok">{{ flash }}</p>{% endif %}
+    {% if error %}<p class="banner bad">{{ error }}</p>{% endif %}
+    {% block body %}{% endblock %}
+  </main>
+  <footer>
+    <a href="/privacy">Privacy</a>
+    · <a href="/terms">Terms</a>
+    · Your egg dials out — tokens hand off encrypted to <em>your</em> StreamRelay.
+    · <a href="https://github.com/MohFarzin/Omnix-Link" rel="noopener">Omnix Link</a>
+    · <a href="https://github.com/MohFarzin/Omnix-StreamRelay" rel="noopener">StreamRelay</a>
+  </footer>
+</body>
+</html>

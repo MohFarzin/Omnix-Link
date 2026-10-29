@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Omnix Link — Relay Link by OmnixStudio{% endblock %}
+{% block body %}
+<section class="hero brand-hero">
+  <img class="hero-logo" src="/static/logo.svg?v=relay1" width="180" height="180" alt="Omnix Link — Stream Relay" />
+  <p class="eyebrow">OmnixStudio</p>
+  <h1>Omnix Link</h1>
+  <p class="lede">Relay Link for self-hosted StreamRelay. Connect your egg without a public IP, then Connect YouTube / Twitch / Kick here — tokens go encrypted to your machine.</p>
+  <div class="cta">
+    <a class="btn" href="/register">Create account</a>
+    <a class="ghost" href="/login">Log in</a>
+  </div>
+</section>
+<section class="steps">
+  <article>
+    <h2>1. Account</h2>
+    <p>Email, Google, or Discord — for Omnix Link only.</p>
+  </article>
+  <article>
+    <h2>2. Connect Relay</h2>
+    <p>One token, paste into StreamRelay, confirm the IP on this site.</p>
+  </article>
+  <article>
+    <h2>3. Platforms</h2>
+    <p>Connect YouTube / Twitch / Kick here. Remove access anytime on Link.</p>
+  </article>
+</section>
+<section class="domain-note panel">
+  <h2>Official domain</h2>
+  <p class="muted">This product is only at <strong>https://relaylink.omnixstudio.xyz</strong>. Prefer local Connect on StreamRelay if you do not want to use Link.</p>
+  <p class="muted small"><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a> · <a href="mailto:admin@omnixstudio.xyz">admin@omnixstudio.xyz</a></p>
+</section>
+{% endblock %}

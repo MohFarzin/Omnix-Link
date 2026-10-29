@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Log in · Omnix Link{% endblock %}
+{% block body %}
+<section class="auth-card">
+  <h1>Log in</h1>
+  {% if error %}<p class="banner bad">{{ error }}</p>{% endif %}
+  <div class="stack social">
+    {% if google_ready %}
+      <a class="btn wide google" href="/auth/google/start">Continue with Google</a>
+    {% endif %}
+    {% if discord_ready %}
+      <a class="ghost wide" href="/auth/discord/start">Continue with Discord</a>
+    {% endif %}
+  </div>
+  {% if google_ready or discord_ready %}<div class="or">or email</div>{% endif %}
+  <form method="post" action="/login" class="stack">
+    <label>Email <input type="email" name="email" required autocomplete="username" /></label>
+    <label>Password <input type="password" name="password" required autocomplete="current-password" /></label>
+    <button type="submit">Log in with email</button>
+  </form>
+  {% if not google_ready and not discord_ready %}
+    <p class="muted">Social login not configured on this deployment yet.</p>
+  {% endif %}
+  <p class="muted">No account? <a href="/register">Sign up</a></p>
+</section>
+{% endblock %}
