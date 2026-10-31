@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import secrets
 from urllib.parse import urlencode
 
 import httpx
@@ -15,8 +18,20 @@ YT_SCOPES = " ".join(
         "https://www.googleapis.com/auth/youtube.upload",
     ]
 )
-TWITCH_SCOPES = "chat:read chat:edit user:read:email channel:read:stream_key"
-KICK_SCOPES = "user:read channel:read chat:write"
+# channel:manage:broadcast required for Helix PATCH /channels (Live Manager titles/game)
+TWITCH_SCOPES = (
+    "chat:read chat:edit user:read:email channel:read:stream_key channel:manage:broadcast"
+)
+# Must match Kick app checkboxes: user + channel + stream key + chat send
+KICK_SCOPES = "user:read channel:read channel:write streamkey:read chat:write"
+
+
+def make_pkce() -> tuple[str, str]:
+    """Return (code_verifier, code_challenge) for Kick OAuth 2.1 S256."""
+    verifier = secrets.token_urlsafe(64)[:128]
+    digest = hashlib.sha256(verifier.encode("ascii")).digest()
+    challenge = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+    return verifier, challenge
 
 
 def _app_url() -> str:
@@ -61,7 +76,7 @@ def twitch_auth_url(state: str) -> str:
     return f"https://id.twitch.tv/oauth2/authorize?{q}"
 
 
-def kick_auth_url(state: str) -> str:
+def kick_auth_url(state: str, code_challenge: str) -> str:
     s = get_settings()
     q = urlencode(
         {
@@ -70,6 +85,8 @@ def kick_auth_url(state: str) -> str:
             "response_type": "code",
             "scope": KICK_SCOPES,
             "state": state,
+            "code_challenge": code_challenge,
+            "code_challenge_method": "S256",
         }
     )
     return f"https://id.kick.com/oauth/authorize?{q}"
@@ -118,11 +135,34 @@ async def exchange_twitch(code: str) -> dict:
             },
         )
         u = (user.json().get("data") or [{}])[0]
-        body["_extra"] = {"channel": u.get("login") or "", "user_id": u.get("id") or ""}
+        extra = {
+            "channel": u.get("login") or "",
+            "user_id": u.get("id") or "",
+            "client_id": s.twitch_client_id or "",
+        }
+        # Fetch stream key on Link so the egg does not need TWITCH_CLIENT_ID
+        try:
+            uid = u.get("id") or ""
+            if uid:
+                key_res = await client.get(
+                    f"https://api.twitch.tv/helix/streams/key?broadcaster_id={uid}",
+                    headers={
+                        "Authorization": f"Bearer {body['access_token']}",
+                        "Client-Id": s.twitch_client_id,
+                    },
+                )
+                if key_res.status_code < 400:
+                    sk = ((key_res.json().get("data") or [{}])[0]).get("stream_key") or ""
+                    if sk:
+                        extra["stream_key"] = sk
+                        extra["rtmp_url"] = "rtmp://live.twitch.tv/app"
+        except Exception:
+            pass
+        body["_extra"] = extra
         return body
 
 
-async def exchange_kick(code: str) -> dict:
+async def exchange_kick(code: str, code_verifier: str) -> dict:
     s = get_settings()
     async with httpx.AsyncClient(timeout=30.0) as client:
         res = await client.post(
@@ -133,12 +173,56 @@ async def exchange_kick(code: str) -> dict:
                 "client_secret": s.kick_client_secret,
                 "redirect_uri": f"{_app_url()}/oauth/kick/callback",
                 "code": code,
+                "code_verifier": code_verifier,
             },
         )
         body = res.json()
         if res.status_code >= 400 or "access_token" not in body:
-            raise RuntimeError(body.get("error") or "Kick token failed")
-        body["_extra"] = {}
+            raise RuntimeError(body.get("error") or body.get("message") or "Kick token failed")
+        extra: dict = {}
+        headers = {
+            "Authorization": f"Bearer {body['access_token']}",
+            "Accept": "application/json",
+        }
+        try:
+            me = await client.get("https://api.kick.com/public/v1/users", headers=headers)
+            if me.status_code < 400:
+                data = (me.json().get("data") or [{}])[0]
+                extra = {
+                    "channel": data.get("name") or data.get("username") or "",
+                    "user_id": str(data.get("user_id") or data.get("id") or ""),
+                }
+        except Exception:
+            pass
+        # streamkey:read — key lives on channel.stream (or dedicated stream-key routes)
+        try:
+            ch = await client.get("https://api.kick.com/public/v1/channels", headers=headers)
+            if ch.status_code < 400:
+                row = (ch.json().get("data") or [{}])[0]
+                stream = row.get("stream") or {}
+                sk = stream.get("key") or stream.get("stream_key") or ""
+                url = stream.get("url") or stream.get("rtmp_url") or ""
+                if sk:
+                    extra["stream_key"] = sk
+                    if url:
+                        extra["rtmp_url"] = url
+            if "stream_key" not in extra:
+                for path in ("/public/v1/stream-key", "/public/v1/streamkey"):
+                    sk_res = await client.get(f"https://api.kick.com{path}", headers=headers)
+                    if sk_res.status_code >= 400:
+                        continue
+                    payload = sk_res.json().get("data")
+                    row = payload[0] if isinstance(payload, list) else (payload or {})
+                    sk = row.get("stream_key") or row.get("key") or ""
+                    url = row.get("rtmp_url") or row.get("url") or ""
+                    if sk:
+                        extra["stream_key"] = sk
+                        if url:
+                            extra["rtmp_url"] = url
+                        break
+        except Exception:
+            pass
+        body["_extra"] = extra
         return body
 
 

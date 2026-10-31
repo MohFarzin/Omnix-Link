@@ -34,6 +34,7 @@ def main() -> None:
 
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("SERVER_PORT") or os.environ.get("PORT") or "8080")
+    print("Omnix Link: Server marked as starting...", flush=True)
     # Reload off in production egg
     uvicorn.run(
         "app.main:app",

@@ -39,7 +39,18 @@ def render(request: Request, name: str, **ctx):
 
 @app.on_event("startup")
 def _startup() -> None:
+    import os
+
     init_db()
+    settings = get_settings()
+    port = os.environ.get("SERVER_PORT") or os.environ.get("PORT") or "8080"
+    dash = (settings.app_url or "").strip().rstrip("/") or f"http://0.0.0.0:{port}"
+    # "Server is running" must appear — python-generic egg done-detect looks for that substring
+    print("==========================================", flush=True)
+    print(" Omnix Link", flush=True)
+    print(" Server is running", flush=True)
+    print(f" Dashboard:      {dash}", flush=True)
+    print("==========================================", flush=True)
 
 
 def current_user(request: Request, db: Session) -> User | None:
@@ -399,20 +410,31 @@ def connect_start(relay_id: int, platform: str, request: Request, db: Session = 
     if not relay or relay.user_id != user.id:
         raise HTTPException(404)
     platform = platform.lower()
-    state = dump_oauth_state({"kind": "platform", "platform": platform, "relay_id": relay.id, "uid": user.id})
     if platform == "youtube":
         s0 = get_settings()
         if not ((s0.youtube_client_id or s0.google_client_id) and (s0.youtube_client_secret or s0.google_client_secret)):
             return RedirectResponse(f"/app/relays/{relay_id}?err=YouTube+not+configured", status_code=303)
+        state = dump_oauth_state({"kind": "platform", "platform": platform, "relay_id": relay.id, "uid": user.id})
         return RedirectResponse(poauth.youtube_auth_url(state), status_code=303)
     if platform == "twitch":
         if not get_settings().twitch_client_id:
             return RedirectResponse(f"/app/relays/{relay_id}?err=Twitch+not+configured", status_code=303)
+        state = dump_oauth_state({"kind": "platform", "platform": platform, "relay_id": relay.id, "uid": user.id})
         return RedirectResponse(poauth.twitch_auth_url(state), status_code=303)
     if platform == "kick":
         if not get_settings().kick_client_id:
             return RedirectResponse(f"/app/relays/{relay_id}?err=Kick+not+configured", status_code=303)
-        return RedirectResponse(poauth.kick_auth_url(state), status_code=303)
+        verifier, challenge = poauth.make_pkce()
+        state = dump_oauth_state(
+            {
+                "kind": "platform",
+                "platform": platform,
+                "relay_id": relay.id,
+                "uid": user.id,
+                "code_verifier": verifier,
+            }
+        )
+        return RedirectResponse(poauth.kick_auth_url(state, challenge), status_code=303)
     raise HTTPException(400, "unknown platform")
 
 
@@ -437,7 +459,10 @@ async def _finish_platform(request: Request, platform: str, code: str, state: st
         body = await poauth.exchange_twitch(code)
         extra = body.pop("_extra", {})
     else:
-        body = await poauth.exchange_kick(code)
+        verifier = str(payload.get("code_verifier") or "")
+        if not verifier:
+            raise HTTPException(400, "Kick PKCE verifier missing — try Connect Kick again")
+        body = await poauth.exchange_kick(code, verifier)
         extra = body.pop("_extra", {})
 
     if relay.link_status != "linked" or not relay.tunnel_token:

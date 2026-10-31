@@ -1,0 +1,101 @@
+{
+  "_comment": "Omnix Link / Relay Link — import into Jexactyl nest, then assign to the Hyderabad egg",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "name": "Omnix Link",
+  "author": "admin@omnixstudio.xyz",
+  "description": "Omnix Link (Relay Link) — FastAPI companion for StreamRelay OAuth handoff.",
+  "features": null,
+  "docker_images": {
+    "Python 3.13": "ghcr.io/ptero-eggs/yolks:python_3.13"
+  },
+  "file_denylist": [],
+  "startup": "if [[ -d .git ]] && [[ \"{{AUTO_UPDATE}}\" == \"1\" ]]; then git pull; fi; if [[ ! -z \"{{PY_PACKAGES}}\" ]]; then pip install -U --prefix .local {{PY_PACKAGES}}; fi; if [[ -f /home/container/${REQUIREMENTS_FILE} ]]; then pip install -U --prefix .local -r ${REQUIREMENTS_FILE}; fi; /usr/local/bin/python /home/container/{{PY_FILE}}",
+  "config": {
+    "files": "{}",
+    "startup": "{\n    \"done\": [\n        \"Server is running\",\n        \"Server marked as running\",\n        \"Uvicorn running on\",\n        \"Application startup complete\"\n    ]\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\napt update\napt install -y git curl jq file unzip make gcc g++ libtool\nmkdir -p /mnt/server\ncd /mnt/server\nif [ \"${USER_UPLOAD}\" == \"true\" ] || [ \"${USER_UPLOAD}\" == \"1\" ]; then\n  echo \"user upload — skip clone\"\n  exit 0\nfi\nif [[ ${GIT_ADDRESS} != *.git ]]; then GIT_ADDRESS=${GIT_ADDRESS}.git; fi\nif [ -n \"${USERNAME}\" ] && [ -n \"${ACCESS_TOKEN}\" ]; then\n  GIT_ADDRESS=\"https://${USERNAME}:${ACCESS_TOKEN}@$(echo ${GIT_ADDRESS} | cut -d/ -f3-)\"\nfi\nif [ \"$(ls -A /mnt/server)\" ]; then\n  if [ -d .git ]; then git pull || true; fi\nelse\n  if [ -z \"${BRANCH}\" ]; then git clone ${GIT_ADDRESS} .\n  else git clone --single-branch --branch ${BRANCH} ${GIT_ADDRESS} .\n  fi\nfi\nexport HOME=/mnt/server\nif [[ ! -z ${PY_PACKAGES} ]]; then pip install -U --prefix .local ${PY_PACKAGES}; fi\nif [ -f /mnt/server/requirements.txt ]; then pip install -U --prefix .local -r ${REQUIREMENTS_FILE}; fi\necho \"install complete\"\nexit 0",
+      "container": "python:3.13-slim-bookworm",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Git Repo Address",
+      "description": "https://github.com/MohFarzin/Omnix-Link",
+      "env_variable": "GIT_ADDRESS",
+      "default_value": "https://github.com/MohFarzin/Omnix-Link",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Git Branch",
+      "description": "Branch to pull",
+      "env_variable": "BRANCH",
+      "default_value": "main",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string",
+      "field_type": "text"
+    },
+    {
+      "name": "User Uploaded Files",
+      "description": "1 = skip git clone on install",
+      "env_variable": "USER_UPLOAD",
+      "default_value": "1",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|boolean",
+      "field_type": "text"
+    },
+    {
+      "name": "Auto Update",
+      "description": "git pull on start",
+      "env_variable": "AUTO_UPDATE",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|boolean",
+      "field_type": "text"
+    },
+    {
+      "name": "App py file",
+      "description": "Entrypoint",
+      "env_variable": "PY_FILE",
+      "default_value": "app.py",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Additional Python packages",
+      "description": "Extra pip packages",
+      "env_variable": "PY_PACKAGES",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string",
+      "field_type": "text"
+    },
+    {
+      "name": "Requirements file",
+      "description": "requirements.txt path",
+      "env_variable": "REQUIREMENTS_FILE",
+      "default_value": "requirements.txt",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
+}
